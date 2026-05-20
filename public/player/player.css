@@ -1,0 +1,39 @@
+/* ─── Player-specific styles ─────────────────────────────── */
+
+/* Nom du joueur (identity) */
+.identity-name {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--secondary);
+  text-align: center;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  padding: 0.9rem 1rem;
+  letter-spacing: 0.02em;
+}
+
+/* Animation d'attente */
+.waiting-animation {
+  text-align: center;
+  margin-top: 1.75rem;
+}
+
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+}
+.dots span {
+  width: 9px;
+  height: 9px;
+  background: var(--secondary);
+  border-radius: 50%;
+  animation: bounce 1.4s infinite ease-in-out;
+}
+.dots span:nth-child(1) { animation-delay: -0.32s; }
+.dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0.2); opacity: 0.3; }
+  40%            { transform: scale(1);   opacity: 1;   }
+}

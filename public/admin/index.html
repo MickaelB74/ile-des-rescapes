@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — L'Île des Rescapés</title>
+  <link rel="stylesheet" href="/shared/style.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <div id="app">
+
+    <header class="header">
+      <h1>🏝️ L'Île des Rescapés</h1>
+      <p class="subtitle">Panneau Administrateur</p>
+    </header>
+
+    <!-- ── Lobby : aucune partie active ── -->
+    <div id="section-lobby" class="card">
+      <div class="card-title">⚓ Créer une partie</div>
+      <p class="text-muted text-sm" style="margin-bottom:1.5rem">
+        Créez une nouvelle partie. Les joueurs pourront rejoindre avec le code généré.
+      </p>
+      <button id="btn-create" class="btn btn-primary">＋ Nouvelle partie</button>
+    </div>
+
+    <!-- ── Lobby : partie ouverte, en attente de joueurs ── -->
+    <div id="section-game" class="card hidden">
+      <div class="row" style="margin-bottom:1.5rem">
+        <div class="card-title" style="margin-bottom:0">🎮 Partie ouverte</div>
+        <span id="status-badge" class="badge waiting"><span class="dot"></span> En attente</span>
+      </div>
+
+      <!-- Code de la partie -->
+      <div class="game-code-block">
+        <div>
+          <div class="code-label">Code de la partie</div>
+          <div id="game-code-value" class="code-value">------</div>
+        </div>
+        <button id="btn-copy" class="btn btn-secondary" style="width:auto;padding:.5rem 1rem;font-size:.82rem">
+          📋 Copier
+        </button>
+      </div>
+
+      <!-- Lien joueur -->
+      <div id="player-link-block" style="margin-bottom:1.5rem">
+        <p class="text-muted text-sm" style="margin-bottom:.35rem">Lien à partager aux joueurs :</p>
+        <div class="link-display">
+          <span id="player-url"></span>
+          <button id="btn-copy-url" class="btn btn-secondary" style="width:auto;padding:.3rem .7rem;font-size:.78rem">Copier</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Liste des joueurs -->
+      <p id="player-count" class="player-count">0 joueur connecté</p>
+      <ul id="player-list" class="player-list"></ul>
+      <div id="empty-state" class="empty-state">
+        ⛵ En attente de joueurs… Partagez le code ou le lien !
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Actions -->
+      <div class="stack">
+        <button id="btn-start" class="btn btn-success" disabled>🚀 Lancer la partie</button>
+        <button id="btn-destroy" class="btn btn-secondary">🗑️ Annuler la partie</button>
+      </div>
+
+      <div id="alert-game" class="hidden"></div>
+    </div>
+
+    <!-- ── Partie lancée ── -->
+    <div id="section-started" class="card hidden">
+      <div class="card-title">🌊 Partie en cours</div>
+      <p class="text-muted text-sm" style="margin-bottom:1.25rem">
+        La partie a démarré avec <strong id="started-count" style="color:var(--accent)">0</strong> naufragé(s).
+      </p>
+      <ul id="started-list" class="player-list" style="margin-bottom:1.5rem"></ul>
+      <button id="btn-new-game" class="btn btn-primary">🔄 Nouvelle partie</button>
+    </div>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

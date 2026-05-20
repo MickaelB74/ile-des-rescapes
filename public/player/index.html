@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>L'Île des Rescapés</title>
+  <link rel="stylesheet" href="/shared/style.css" />
+  <link rel="stylesheet" href="player.css" />
+</head>
+<body>
+  <div id="app">
+
+    <header class="header">
+      <h1>🏝️ L'Île des Rescapés</h1>
+      <p class="subtitle">Rejoindre l'aventure</p>
+    </header>
+
+    <!-- ── Formulaire de connexion ── -->
+    <div id="section-join" class="card">
+      <div class="card-title">🗺️ Rejoindre une partie</div>
+      <div class="input-group">
+        <label for="input-code">Code de la partie</label>
+        <input
+          type="text"
+          id="input-code"
+          class="input-field"
+          placeholder="Ex : AB34CD"
+          maxlength="6"
+          autocomplete="off"
+          spellcheck="false"
+          style="text-transform:uppercase;letter-spacing:.2em;font-size:1.2rem;text-align:center"
+        />
+      </div>
+      <div id="join-error" class="alert alert-error hidden"></div>
+      <button id="btn-join" class="btn btn-primary" style="margin-top:.5rem">⛵ Rejoindre l'île</button>
+    </div>
+
+    <!-- ── Salle d'attente ── -->
+    <div id="section-waiting" class="card hidden">
+      <div class="card-title">⏳ Salle d'attente</div>
+      <p class="text-muted text-sm" style="margin-bottom:.75rem">Votre identité sur l'île :</p>
+      <div id="waiting-name" class="identity-name"></div>
+      <div class="waiting-animation">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <p class="text-muted text-sm" style="margin-top:.75rem">En attente du lancement par l'admin…</p>
+      </div>
+    </div>
+
+    <!-- ── Partie lancée ── -->
+    <div id="section-started" class="card hidden">
+      <div class="card-title">🌊 L'île vous attend !</div>
+      <div style="text-align:center;padding:1.5rem 0">
+        <p style="font-size:3.5rem;margin-bottom:.75rem">⚓</p>
+        <p class="text-muted text-sm" style="margin-bottom:.4rem">Vous jouez en tant que</p>
+        <p id="started-name" class="identity-name" style="margin-bottom:1.25rem"></p>
+        <p class="text-muted text-sm">Bonne chance, naufragé !</p>
+      </div>
+    </div>
+
+    <!-- ── Expulsé ── -->
+    <div id="section-kicked" class="card hidden">
+      <div class="card-title">🚪 Expulsé de l'île</div>
+      <p class="text-muted text-sm" style="margin-bottom:1.5rem">L'administrateur vous a retiré de la partie.</p>
+      <button id="btn-back" class="btn btn-secondary">↩ Retour à l'accueil</button>
+    </div>
+
+    <!-- ── Admin déconnecté / partie annulée ── -->
+    <div id="section-cancelled" class="card hidden">
+      <div class="card-title">⚡ Partie annulée</div>
+      <p class="text-muted text-sm" style="margin-bottom:1.5rem">La partie a été annulée par l'administrateur.</p>
+      <button id="btn-back-cancel" class="btn btn-secondary">↩ Retour à l'accueil</button>
+    </div>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="player.js"></script>
+</body>
+</html>
