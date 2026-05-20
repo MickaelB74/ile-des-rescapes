@@ -2,7 +2,7 @@ const { generateUniqueName } = require('../utils/nameGenerator');
 const TEAMS = require('./teams');
 const { assignObjectives, canComplete } = require('./objectives');
 
-const PHASE_DURATIONS = { 1: 2 * 60, 2: 5 * 60, 3: 8 * 60, 4: null };
+// Pas de chrono — l'admin contrôle manuellement les transitions
 const PHASE_NAMES = {
   0: 'Lobby',
   1: 'Sélection des équipes',
@@ -27,6 +27,7 @@ function createGame(adminSocketId) {
     adminSocketId,
     phase: 0,
     phaseEndAt: null,
+    completionOrder: 0,
     players: new Map(),
     createdAt: new Date(),
   });
@@ -79,9 +80,8 @@ function startPhase(code, phase) {
   const game = games.get(code);
   if (!game) return { error: 'Partie introuvable.' };
   if (phase < 1 || phase > 4) return { error: 'Phase invalide.' };
-  const duration = PHASE_DURATIONS[phase];
   game.phase = phase;
-  game.phaseEndAt = duration ? Date.now() + duration * 1000 : null;
+  game.phaseEndAt = null;
   if (phase === 3) {
     assignObjectives([...game.players.values()].filter(p => p.connected));
   }
@@ -99,14 +99,16 @@ function requestHelp(code, socketId, objectiveId, teamId) {
   if (!obj || !(teamId in obj.contributions)) return null;
   if (obj.contributions[teamId] !== null) return null; // déjà fourni
 
-  // 1 seule demande active à la fois — toutes équipes et tous objectifs confondus
-  const alreadyActive = player.objectives.some(o =>
-    Object.keys(o.helpRequested || {}).some(tid =>
-      o.helpRequested[tid] === true &&
-      (o.contributions || {})[tid] === null
+  // 1 seule demande active à la fois — vérification GLOBALE sur tous les joueurs
+  const anyActive = [...game.players.values()].some(p =>
+    p.objectives.some(o =>
+      Object.keys(o.helpRequested || {}).some(tid =>
+        o.helpRequested[tid] === true &&
+        (o.contributions || {})[tid] === null
+      )
     )
   );
-  if (alreadyActive) return { error: 'Attendez de recevoir l\'aide en cours avant d\'en demander une autre.' };
+  if (anyActive) return { error: 'Une aide est déjà en cours. Aidez d\'abord avant d\'en demander une autre.' };
 
   obj.helpRequested[teamId] = true;
   return { player, obj };
@@ -144,6 +146,7 @@ function completeObjective(code, socketId, objectiveId) {
   if (!obj) return { error: 'Objectif introuvable.' };
   if (!canComplete(obj)) return { error: 'Ressources manquantes — demandez de l\'aide.' };
   obj.status = 'completed';
+  obj.completionOrder = ++game.completionOrder;
   return { player, obj };
 }
 
@@ -160,5 +163,5 @@ module.exports = {
   setPlayerTeam, startPhase,
   requestHelp, contributeResource, completeObjective,
   getPlayers, deleteGame,
-  TEAMS, PHASE_DURATIONS, PHASE_NAMES,
+  TEAMS, PHASE_NAMES,
 };

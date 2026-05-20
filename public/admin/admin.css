@@ -341,3 +341,19 @@
 }
 .board-res-dot { font-size: 0.85rem; opacity: 0.18; line-height: 1; }
 .board-res-dot.got { opacity: 1; }
+
+/* Badge ordre de construction */
+.board-order-badge {
+  flex-shrink: 0;
+  align-self: flex-start;
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #f4e4c1;
+  background: rgba(74,122,58,.55);
+  border: 1px solid rgba(244,228,193,.3);
+  padding: 0.15rem 0.45rem;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}

@@ -18,12 +18,7 @@
       <span style="font-size:1.3rem">🏝️</span>
       <span id="player-name-chip" class="player-name-chip hidden"></span>
     </div>
-    <div class="topbar-right">
-      <div class="timer-widget" id="timer-wrapper">
-        <span class="timer-label" id="timer-label">Temps</span>
-        <span class="timer-value" id="timer-value">--:--</span>
-      </div>
-    </div>
+    <div class="topbar-right"></div>
   </header>
 
   <div class="page" id="page">
@@ -162,20 +157,10 @@
       </div>
     </div>
 
-    <!-- ════════════ OVERLAY : TEMPS ÉCOULÉ ════════════ -->
-    <div id="overlay-timer-end" class="timer-end-overlay hidden">
-      <div class="timer-end-card">
-        <p style="font-size:2.5rem">⏰</p>
-        <div class="card-title mt-sm" style="justify-content:center">Temps écoulé !</div>
-        <p class="text-muted text-sm mt-sm">En attente de la phase suivante…</p>
-        <div class="loading-dots mt-lg"><span></span><span></span><span></span></div>
-      </div>
-    </div>
 
   </div><!-- /page -->
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/shared/timer.js"></script>
   <script src="player.js"></script>
 </body>
 </html>

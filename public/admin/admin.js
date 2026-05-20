@@ -1,9 +1,5 @@
 /* ── Init ─────────────────────────────────────────────────── */
 const socket = io();
-const timer  = new GameTimer(
-  document.getElementById('timer-value'),
-  document.getElementById('timer-label')
-);
 
 const TEAMS = {
   batisseurs:   { name: 'Bâtisseurs',   emoji: '🏗️', color: '#c8732a', resource: '🪵 Bois'       },
@@ -142,7 +138,6 @@ function resetToLobby() {
   lobbyGameArea.classList.add('hidden');
   lobbyPlayersCard.classList.add('hidden');
   lobbyStatus.classList.add('hidden');
-  timer.clear();
   topbarPhase.classList.add('hidden');
   showView('lobby');
 }
@@ -162,8 +157,6 @@ function enterGame({ phase, phaseEndAt, players }) {
   setPhase3View(phase === 3);
   if (phase === 3) renderBoardP3(); else renderPlayerGrid();
 
-  if (phaseEndAt) timer.start(phaseEndAt);
-  else timer.clear(phase === 4 ? '—' : '--:--');
 
   const meta = PHASE_META[phase];
   if (meta) {
@@ -178,7 +171,6 @@ function updateTopbarPhase(phase) {
     topbarPhase.textContent = meta.name;
     topbarPhase.classList.remove('hidden');
   }
-  timer.setLabel(phase === 4 ? '' : 'Temps restant');
 }
 
 function updatePhasePanel(phase) {
@@ -283,6 +275,7 @@ function renderBoardP3() {
             <div class="board-obj-label">${stLabel}</div>
             <div class="board-obj-res">${resIcons}</div>
           </div>
+          ${isDone && o.completionOrder ? `<span class="board-order-badge">#${o.completionOrder}</span>` : ''}
         </div>`;
     }).join('');
 

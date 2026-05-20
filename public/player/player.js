@@ -1,9 +1,5 @@
 /* ── Init ─────────────────────────────────────────────────── */
 const socket = io();
-const timer  = new GameTimer(
-  document.getElementById('timer-value'),
-  document.getElementById('timer-label')
-);
 
 const TEAMS = [
   { id: 'batisseurs',   name: 'Les Bâtisseurs',   emoji: '🏗️', color: '#c8732a',
@@ -76,7 +72,6 @@ const teamGrid2       = document.getElementById('team-grid-2');
 const objectivesGrid  = document.getElementById('objectives-grid');
 const helpPanel       = document.getElementById('help-panel');
 const helpRequests_   = document.getElementById('help-requests');
-const overlayTimerEnd = document.getElementById('overlay-timer-end');
 const debriefName     = document.getElementById('debrief-name');
 const debriefTeam     = document.getElementById('debrief-team');
 
@@ -95,8 +90,6 @@ function resetToJoin() {
   inputCode.value = '';
   clearError();
   playerChip.classList.add('hidden');
-  timer.clear();
-  overlayTimerEnd.classList.add('hidden');
   showView('join');
 }
 
@@ -104,8 +97,11 @@ function canComplete(obj) {
   return Object.values(obj.contributions || {}).every(v => v !== null);
 }
 
-// Vérifie si une demande d'aide est déjà active (1 seule autorisée à la fois, toutes équipes confondues)
+// Vérifie si une demande d'aide est active globalement.
+// - helpRequests Map : contient les demandes reçues d'autres joueurs (player:help-needed)
+// - me.objectives : contient ma propre demande en cours (côté local)
 function hasAnyActiveRequest() {
+  if (helpRequests.size > 0) return true;
   return me.objectives.some(o =>
     Object.keys(o.helpRequested || {}).some(tid =>
       o.helpRequested[tid] === true &&
@@ -113,13 +109,6 @@ function hasAnyActiveRequest() {
     )
   );
 }
-
-/* ── Timer end → overlay ──────────────────────────────────── */
-document.getElementById('timer-value').addEventListener('timer-end', () => {
-  const activePhases = ['phase1', 'phase2', 'phase3'];
-  const inPhase = activePhases.some(v => !views[v].classList.contains('hidden'));
-  if (inPhase) overlayTimerEnd.classList.remove('hidden');
-});
 
 /* ── Pre-fill code from URL ───────────────────────────────── */
 const urlCode = new URLSearchParams(location.search).get('code');
@@ -150,14 +139,10 @@ document.getElementById('btn-back-kicked').addEventListener('click', resetToJoin
 document.getElementById('btn-back-cancel').addEventListener('click', resetToJoin);
 
 /* ── Phase dispatch ───────────────────────────────────────── */
-function handlePhaseChange({ phase, phaseEndAt, players }) {
-  overlayTimerEnd.classList.add('hidden');
+function handlePhaseChange({ phase, players }) {
   allPlayers = players;
   const myData = players.find(p => p.socketId === socket.id);
   if (myData) { me.team = myData.team; me.objectives = myData.objectives || []; }
-
-  if (phaseEndAt) { timer.start(phaseEndAt); timer.setLabel('Temps restant'); }
-  else            { timer.clear(phase === 4 ? '—' : '--:--'); timer.setLabel(phase === 4 ? 'Terminé' : 'Temps'); }
 
   if (phase === 1) renderPhase1();
   else if (phase === 2) renderPhase2();
@@ -435,10 +420,13 @@ function renderPhase4() {
 socket.on('game:phase-changed', handlePhaseChange);
 
 socket.on('player:help-needed', (h) => {
-  if (h.fromSocketId === socket.id) return; // Ne pas afficher sa propre demande
+  if (h.fromSocketId === socket.id) return;
   const key = `${h.fromSocketId}:${h.objectiveId}`;
   helpRequests.set(key, h);
-  if (!views.phase3.classList.contains('hidden')) renderHelpPanel();
+  if (!views.phase3.classList.contains('hidden')) {
+    renderHelpPanel();
+    renderObjectives(); // verrouille les boutons pour tous
+  }
 });
 
 socket.on('player:contribution-received', ({ objectiveId, teamId, helperName }) => {
@@ -465,5 +453,14 @@ socket.on('game:players-update', ({ players }) => {
   }
 });
 
-socket.on('player:kicked',           () => { timer.clear(); showView('kicked');    });
-socket.on('game:admin-disconnected', () => { timer.clear(); showView('cancelled'); });
+// Demande d'aide résolue → retirer du panneau et déverrouiller les boutons pour tous
+socket.on('player:help-fulfilled', ({ fromSocketId, objectiveId }) => {
+  helpRequests.delete(`${fromSocketId}:${objectiveId}`);
+  if (!views.phase3.classList.contains('hidden')) {
+    renderHelpPanel();
+    renderObjectives(); // déverrouille les boutons
+  }
+});
+
+socket.on('player:kicked',           () => showView('kicked'));
+socket.on('game:admin-disconnected', () => showView('cancelled'));

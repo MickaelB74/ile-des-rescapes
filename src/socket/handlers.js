@@ -116,8 +116,14 @@ function setupSocketHandlers(io) {
       // Met à jour l'admin
       io.to(`admin:${code}`).emit('admin:player-state', { player: result.target });
 
-      // Broadcast l'état global à tous les joueurs pour la vue camp
+      // Broadcast l'état global à tous les joueurs
       io.to(`game:${code}`).emit('game:players-update', { players: gm.getPlayers(code) });
+
+      // Notifie tous les joueurs que la demande d'aide est résolue → disparaît du panneau
+      io.to(`game:${code}`).emit('player:help-fulfilled', {
+        fromSocketId: targetSocketId,
+        objectiveId,
+      });
 
       callback?.({ success: true });
     });
