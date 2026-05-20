@@ -8,82 +8,124 @@
   <link rel="stylesheet" href="admin.css" />
 </head>
 <body>
-  <div id="app">
 
-    <header class="header">
-      <h1>🏝️ L'Île des Rescapés</h1>
-      <p class="subtitle">Panneau Administrateur</p>
-    </header>
+  <!-- ── Topbar ── -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <span style="font-size:1.4rem">🏝️</span>
+      <h1>L'Île des Rescapés</h1>
+      <span class="chip chip-phase" style="margin-left:.5rem">Admin</span>
+    </div>
+    <div class="topbar-right">
+      <span id="topbar-phase" class="topbar-phase hidden"></span>
+      <div class="timer-widget">
+        <span class="timer-label" id="timer-label">Chrono</span>
+        <span class="timer-value" id="timer-value">--:--</span>
+      </div>
+    </div>
+  </header>
 
-    <!-- ── Lobby : aucune partie active ── -->
-    <div id="section-lobby" class="card">
-      <div class="card-title">⚓ Créer une partie</div>
-      <p class="text-muted text-sm" style="margin-bottom:1.5rem">
-        Créez une nouvelle partie. Les joueurs pourront rejoindre avec le code généré.
-      </p>
-      <button id="btn-create" class="btn btn-primary">＋ Nouvelle partie</button>
+  <div class="page">
+
+    <!-- ═══════════════════════════════════════════
+         LOBBY (phase 0)
+    ═══════════════════════════════════════════ -->
+    <div id="view-lobby" class="admin-view">
+      <div class="admin-layout-single">
+
+        <!-- Code de la partie -->
+        <div class="mat-card">
+          <div class="card-header">
+            <div class="card-title">⚓ Nouvelle partie</div>
+            <span id="lobby-status" class="chip chip-waiting hidden"><span class="chip-dot"></span> En attente</span>
+          </div>
+
+          <div id="lobby-create-area">
+            <p class="text-muted text-sm" style="margin-bottom:var(--sp-lg)">
+              Créez une partie pour que les joueurs puissent rejoindre l'île.
+            </p>
+            <button id="btn-create" class="btn btn-primary">＋ Créer une partie</button>
+          </div>
+
+          <div id="lobby-game-area" class="hidden">
+            <div class="code-block" style="margin-bottom:var(--sp-md)">
+              <div>
+                <div class="code-label">Code de la partie</div>
+                <div id="lobby-code" class="code-value">------</div>
+              </div>
+              <button id="btn-copy-code" class="btn btn-secondary btn-auto btn-sm">📋 Copier</button>
+            </div>
+            <div id="lobby-link-block" class="mat-card-inner" style="margin-bottom:var(--sp-md)">
+              <p class="text-xs text-muted" style="margin-bottom:.3rem">Lien joueur</p>
+              <div class="row between gap-sm">
+                <span id="lobby-link" class="text-xs" style="color:var(--secondary);word-break:break-all"></span>
+                <button id="btn-copy-link" class="btn btn-secondary btn-auto btn-sm">Copier</button>
+              </div>
+            </div>
+            <button id="btn-start-phase1" class="btn btn-success" disabled>🚀 Lancer la partie</button>
+            <button id="btn-destroy" class="btn btn-danger-soft btn-auto mt-md" style="width:100%">🗑️ Annuler</button>
+          </div>
+        </div>
+
+        <!-- Liste des joueurs -->
+        <div id="lobby-players-card" class="mat-card hidden">
+          <div class="card-header">
+            <div class="card-title">👥 Joueurs connectés</div>
+            <span id="lobby-player-count" class="text-sm text-muted">0</span>
+          </div>
+          <ul id="lobby-player-list" class="player-list-simple"></ul>
+          <div id="lobby-empty" class="text-center text-muted text-sm" style="padding:var(--sp-lg) 0">
+            En attente de joueurs… Partagez le code !
+          </div>
+        </div>
+
+      </div>
     </div>
 
-    <!-- ── Lobby : partie ouverte, en attente de joueurs ── -->
-    <div id="section-game" class="card hidden">
-      <div class="row" style="margin-bottom:1.5rem">
-        <div class="card-title" style="margin-bottom:0">🎮 Partie ouverte</div>
-        <span id="status-badge" class="badge waiting"><span class="dot"></span> En attente</span>
+    <!-- ═══════════════════════════════════════════
+         GAME (phases 1–4)
+    ═══════════════════════════════════════════ -->
+    <div id="view-game" class="admin-view hidden">
+      <div class="admin-layout">
+
+        <!-- ── Colonne gauche : contrôle des phases ── -->
+        <aside class="control-col">
+
+          <!-- Info phase courante -->
+          <div class="mat-card" id="phase-info-card">
+            <div class="card-title" id="phase-card-title">Phase 1</div>
+            <div id="phase-card-body"><!-- rendered by JS --></div>
+          </div>
+
+          <!-- Action suivante -->
+          <div class="mat-card" style="margin-top:var(--sp-md)">
+            <button id="btn-next-phase" class="btn btn-primary">⏭️ Phase suivante</button>
+            <button id="btn-abort" class="btn btn-danger-soft mt-md" style="width:100%">⛔ Arrêter la partie</button>
+          </div>
+
+        </aside>
+
+        <!-- ── Colonne droite : grille joueurs ── -->
+        <main class="players-col">
+          <div class="row between gap-sm" style="margin-bottom:var(--sp-md)">
+            <div class="card-title">👥 Joueurs</div>
+            <span id="game-player-count" class="text-sm text-muted"></span>
+          </div>
+          <div id="player-grid" class="player-grid">
+            <!-- Player cards rendered by JS -->
+          </div>
+          <div id="grid-empty" class="text-center text-muted text-sm hidden" style="padding:2rem">
+            Aucun joueur connecté.
+          </div>
+        </main>
+
       </div>
-
-      <!-- Code de la partie -->
-      <div class="game-code-block">
-        <div>
-          <div class="code-label">Code de la partie</div>
-          <div id="game-code-value" class="code-value">------</div>
-        </div>
-        <button id="btn-copy" class="btn btn-secondary" style="width:auto;padding:.5rem 1rem;font-size:.82rem">
-          📋 Copier
-        </button>
-      </div>
-
-      <!-- Lien joueur -->
-      <div id="player-link-block" style="margin-bottom:1.5rem">
-        <p class="text-muted text-sm" style="margin-bottom:.35rem">Lien à partager aux joueurs :</p>
-        <div class="link-display">
-          <span id="player-url"></span>
-          <button id="btn-copy-url" class="btn btn-secondary" style="width:auto;padding:.3rem .7rem;font-size:.78rem">Copier</button>
-        </div>
-      </div>
-
-      <div class="divider"></div>
-
-      <!-- Liste des joueurs -->
-      <p id="player-count" class="player-count">0 joueur connecté</p>
-      <ul id="player-list" class="player-list"></ul>
-      <div id="empty-state" class="empty-state">
-        ⛵ En attente de joueurs… Partagez le code ou le lien !
-      </div>
-
-      <div class="divider"></div>
-
-      <!-- Actions -->
-      <div class="stack">
-        <button id="btn-start" class="btn btn-success" disabled>🚀 Lancer la partie</button>
-        <button id="btn-destroy" class="btn btn-secondary">🗑️ Annuler la partie</button>
-      </div>
-
-      <div id="alert-game" class="hidden"></div>
-    </div>
-
-    <!-- ── Partie lancée ── -->
-    <div id="section-started" class="card hidden">
-      <div class="card-title">🌊 Partie en cours</div>
-      <p class="text-muted text-sm" style="margin-bottom:1.25rem">
-        La partie a démarré avec <strong id="started-count" style="color:var(--accent)">0</strong> naufragé(s).
-      </p>
-      <ul id="started-list" class="player-list" style="margin-bottom:1.5rem"></ul>
-      <button id="btn-new-game" class="btn btn-primary">🔄 Nouvelle partie</button>
     </div>
 
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
+  <script src="/shared/timer.js"></script>
   <script src="admin.js"></script>
 </body>
 </html>

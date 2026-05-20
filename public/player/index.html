@@ -8,72 +8,180 @@
   <link rel="stylesheet" href="player.css" />
 </head>
 <body>
-  <div id="app">
 
-    <header class="header">
-      <h1>🏝️ L'Île des Rescapés</h1>
-      <p class="subtitle">Rejoindre l'aventure</p>
-    </header>
-
-    <!-- ── Formulaire de connexion ── -->
-    <div id="section-join" class="card">
-      <div class="card-title">🗺️ Rejoindre une partie</div>
-      <div class="input-group">
-        <label for="input-code">Code de la partie</label>
-        <input
-          type="text"
-          id="input-code"
-          class="input-field"
-          placeholder="Ex : AB34CD"
-          maxlength="6"
-          autocomplete="off"
-          spellcheck="false"
-          style="text-transform:uppercase;letter-spacing:.2em;font-size:1.2rem;text-align:center"
-        />
-      </div>
-      <div id="join-error" class="alert alert-error hidden"></div>
-      <button id="btn-join" class="btn btn-primary" style="margin-top:.5rem">⛵ Rejoindre l'île</button>
+  <!-- ── Topbar ── -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <span style="font-size:1.3rem">🏝️</span>
+      <span id="player-name-chip" class="player-name-chip hidden"></span>
     </div>
-
-    <!-- ── Salle d'attente ── -->
-    <div id="section-waiting" class="card hidden">
-      <div class="card-title">⏳ Salle d'attente</div>
-      <p class="text-muted text-sm" style="margin-bottom:.75rem">Votre identité sur l'île :</p>
-      <div id="waiting-name" class="identity-name"></div>
-      <div class="waiting-animation">
-        <div class="dots"><span></span><span></span><span></span></div>
-        <p class="text-muted text-sm" style="margin-top:.75rem">En attente du lancement par l'admin…</p>
+    <div class="topbar-right">
+      <div class="timer-widget" id="timer-wrapper">
+        <span class="timer-label" id="timer-label">Temps</span>
+        <span class="timer-value" id="timer-value">--:--</span>
       </div>
     </div>
+  </header>
 
-    <!-- ── Partie lancée ── -->
-    <div id="section-started" class="card hidden">
-      <div class="card-title">🌊 L'île vous attend !</div>
-      <div style="text-align:center;padding:1.5rem 0">
-        <p style="font-size:3.5rem;margin-bottom:.75rem">⚓</p>
-        <p class="text-muted text-sm" style="margin-bottom:.4rem">Vous jouez en tant que</p>
-        <p id="started-name" class="identity-name" style="margin-bottom:1.25rem"></p>
-        <p class="text-muted text-sm">Bonne chance, naufragé !</p>
+  <div class="page" id="page">
+
+    <!-- ═══════════════════════════ JOIN ═══════════════════ -->
+    <div id="view-join" class="player-view">
+      <div class="player-center">
+        <div class="text-center" style="margin-bottom:var(--sp-xl)">
+          <h1 style="font-size:clamp(1.6rem,4vw,2.2rem);font-weight:800;background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">L'Île des Rescapés</h1>
+          <p class="text-muted text-sm mt-sm">Rejoindre l'aventure</p>
+        </div>
+        <div class="mat-card">
+          <div class="card-title">🗺️ Rejoindre une partie</div>
+          <div class="field">
+            <label for="input-code">Code de la partie</label>
+            <input id="input-code" type="text" class="input" placeholder="Ex : AB34CD"
+              maxlength="6" autocomplete="off" spellcheck="false"
+              style="text-transform:uppercase;letter-spacing:.2em;font-size:1.3rem;text-align:center" />
+          </div>
+          <div id="join-error" class="alert alert-error hidden mt-sm"></div>
+          <button id="btn-join" class="btn btn-primary mt-md">⛵ Rejoindre l'île</button>
+        </div>
       </div>
     </div>
 
-    <!-- ── Expulsé ── -->
-    <div id="section-kicked" class="card hidden">
-      <div class="card-title">🚪 Expulsé de l'île</div>
-      <p class="text-muted text-sm" style="margin-bottom:1.5rem">L'administrateur vous a retiré de la partie.</p>
-      <button id="btn-back" class="btn btn-secondary">↩ Retour à l'accueil</button>
+    <!-- ════════════════════════ WAITING ══════════════════ -->
+    <div id="view-waiting" class="player-view hidden">
+      <div class="player-center">
+        <div class="mat-card text-center">
+          <div class="card-title" style="justify-content:center">⏳ Salle d'attente</div>
+          <p class="text-muted text-sm" style="margin-bottom:.5rem">Votre identité sur l'île</p>
+          <div id="waiting-name" class="identity-name"></div>
+          <div class="loading-dots mt-lg">
+            <span></span><span></span><span></span>
+          </div>
+          <p class="text-muted text-sm mt-md">L'admin prépare la partie…</p>
+        </div>
+      </div>
     </div>
 
-    <!-- ── Admin déconnecté / partie annulée ── -->
-    <div id="section-cancelled" class="card hidden">
-      <div class="card-title">⚡ Partie annulée</div>
-      <p class="text-muted text-sm" style="margin-bottom:1.5rem">La partie a été annulée par l'administrateur.</p>
-      <button id="btn-back-cancel" class="btn btn-secondary">↩ Retour à l'accueil</button>
+    <!-- ═══════════════════════ PHASE 1 ════════════════════
+         Sélection des équipes                              -->
+    <div id="view-phase1" class="player-view hidden">
+      <div class="phase-header mat-card-inner" style="margin:var(--sp-lg) var(--sp-lg) 0">
+        <div class="row between gap-sm">
+          <div>
+            <p class="text-xs text-muted">Phase 1 / 4</p>
+            <p class="fw-bold">Choisissez votre équipe</p>
+          </div>
+          <div id="p1-your-team" class="hidden"></div>
+        </div>
+        <p class="text-sm text-muted mt-sm">Chaque joueur choisit librement. Les doublons sont autorisés pour l'instant.</p>
+      </div>
+      <div id="team-grid" class="team-grid"></div>
     </div>
 
-  </div>
+    <!-- ═══════════════════════ PHASE 2 ════════════════════
+         Réorganisation                                     -->
+    <div id="view-phase2" class="player-view hidden">
+      <div class="player-content">
+        <div class="phase-header mat-card-inner">
+          <div class="row between gap-sm">
+            <div>
+              <p class="text-xs text-muted">Phase 2 / 4</p>
+              <p class="fw-bold">Réorganisation des équipes</p>
+            </div>
+            <div id="p2-your-team" class="hidden"></div>
+          </div>
+          <div class="alert alert-info mt-sm" style="font-size:.82rem">
+            💬 Parlez entre vous ! Chaque joueur doit choisir une équipe différente.
+          </div>
+        </div>
+        <div id="team-grid-2" class="team-grid mt-md"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════ PHASE 3 ════════════════════
+         Construction                                       -->
+    <div id="view-phase3" class="player-view player-view-p3 hidden">
+
+      <!-- En-tête compact -->
+      <div class="p3-header">
+        <span class="text-xs text-muted">Phase 3 / 4</span>
+        <span class="fw-bold"> — Construction du camp</span>
+      </div>
+
+      <!-- Corps deux colonnes -->
+      <div class="p3-body">
+
+        <!-- Gauche : aide + objectifs -->
+        <div class="p3-left">
+          <div id="help-panel" class="p3-help-bar hidden">
+            <div class="p3-help-bar-title">🆘 Aide demandée</div>
+            <div id="help-requests" class="p3-help-list"></div>
+          </div>
+          <div class="p3-left-scroll">
+            <div id="objectives-grid" class="obj-grid"></div>
+          </div>
+        </div>
+
+        <!-- Droite : avancée globale (étroite) -->
+        <div class="p3-right">
+          <p class="p3-right-title">🏕️ Camp global</p>
+          <div id="global-camp-list" class="global-camp-list"></div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════ PHASE 4 ════════════════════
+         Débriefing                                         -->
+    <div id="view-phase4" class="player-view hidden">
+      <div class="player-center">
+        <div class="mat-card text-center">
+          <p style="font-size:3rem">🎉</p>
+          <div class="card-title mt-sm" style="justify-content:center">Partie terminée !</div>
+          <p class="text-muted text-sm mt-sm">Le débriefing commence. Bien joué, naufragé !</p>
+          <div id="debrief-name" class="identity-name mt-lg"></div>
+          <div id="debrief-team" class="mt-md"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ KICKED / CANCELLED ════════════ -->
+    <div id="view-kicked" class="player-view hidden">
+      <div class="player-center">
+        <div class="mat-card text-center">
+          <p style="font-size:2.5rem">🚪</p>
+          <div class="card-title mt-sm" style="justify-content:center">Expulsé de l'île</div>
+          <p class="text-muted text-sm mt-sm">L'admin vous a retiré de la partie.</p>
+          <button id="btn-back-kicked" class="btn btn-secondary mt-lg">↩ Retour</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-cancelled" class="player-view hidden">
+      <div class="player-center">
+        <div class="mat-card text-center">
+          <p style="font-size:2.5rem">⚡</p>
+          <div class="card-title mt-sm" style="justify-content:center">Partie annulée</div>
+          <p class="text-muted text-sm mt-sm">L'administrateur a mis fin à la partie.</p>
+          <button id="btn-back-cancel" class="btn btn-secondary mt-lg">↩ Retour</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ OVERLAY : TEMPS ÉCOULÉ ════════════ -->
+    <div id="overlay-timer-end" class="timer-end-overlay hidden">
+      <div class="timer-end-card">
+        <p style="font-size:2.5rem">⏰</p>
+        <div class="card-title mt-sm" style="justify-content:center">Temps écoulé !</div>
+        <p class="text-muted text-sm mt-sm">En attente de la phase suivante…</p>
+        <div class="loading-dots mt-lg"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+
+  </div><!-- /page -->
 
   <script src="/socket.io/socket.io.js"></script>
+  <script src="/shared/timer.js"></script>
   <script src="player.js"></script>
 </body>
 </html>

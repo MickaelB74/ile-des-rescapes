@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(npm install *)",
-      "Bash(timeout 5 node server.js)"
+      "Bash(timeout 5 node server.js)",
+      "Bash(timeout 6 node server.js)",
+      "Bash(PORT=3001 timeout 6 node server.js)",
+      "Bash(PORT=3002 timeout 5 node server.js)"
     ]
   }
 }
