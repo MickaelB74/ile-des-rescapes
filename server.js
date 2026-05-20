@@ -14,6 +14,7 @@ const io = new Server(server);
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/img', express.static(path.join(__dirname, 'src/img')));
 
 app.use('/api/admin', adminRoutes);
 app.use('/api/player', playerRoutes);

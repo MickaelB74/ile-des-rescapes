@@ -6,11 +6,10 @@ const timer  = new GameTimer(
 );
 
 const TEAMS = {
-  batisseurs:   { name: 'Bâtisseurs',    emoji: '🏗️', color: '#ff6b35', resource: '🪵 Bois'       },
-  explorateurs: { name: 'Explorateurs',  emoji: '🗺️', color: '#00b4d8', resource: '📐 Plans'      },
-  chasseurs:    { name: 'Chasseurs',     emoji: '🏹', color: '#06d6a0', resource: '🍖 Nourriture' },
-  guerisseurs:  { name: 'Guérisseurs',   emoji: '⚕️', color: '#ffd166', resource: '💧 Eau'        },
-  strateges:    { name: 'Stratèges',     emoji: '♟️', color: '#c77dff', resource: '🔧 Outils'     },
+  batisseurs:   { name: 'Bâtisseurs',   emoji: '🏗️', color: '#c8732a', resource: '🪵 Bois'       },
+  explorateurs: { name: 'Explorateurs', emoji: '🗺️', color: '#3a7a9a', resource: '📐 Plans'      },
+  chasseurs:    { name: 'Chasseurs',    emoji: '🏹', color: '#4a7a3a', resource: '🍖 Nourriture' },
+  guerisseurs:  { name: 'Guérisseurs',  emoji: '⚕️', color: '#c8a82a', resource: '💧 Eau'        },
 };
 
 const PHASE_META = {
@@ -56,6 +55,13 @@ const gridEmpty        = document.getElementById('grid-empty');
 const gamePlayerCount  = document.getElementById('game-player-count');
 const btnNextPhase     = document.getElementById('btn-next-phase');
 const btnAbort         = document.getElementById('btn-abort');
+const playersColTitle  = document.getElementById('players-col-title');
+
+// Tableau Phase 3
+const boardP3          = document.getElementById('board-p3');
+const boardColumns     = document.getElementById('board-columns');
+const boardScore       = document.getElementById('board-score');
+const boardFill        = document.getElementById('board-fill');
 
 /* ── Helpers ──────────────────────────────────────────────── */
 function showView(name) {
@@ -72,7 +78,7 @@ function copy(text, btn, restore) {
 }
 
 function avatarColor(name) {
-  const colors = ['#ff6b35','#00b4d8','#06d6a0','#ffd166','#c77dff','#ef476f'];
+  const colors = ['#c8732a','#3a7a9a','#4a7a3a','#c8a82a','#8b5e3c','#6b4226'];
   let h = 0;
   for (const c of name) h = (h * 31 + c.charCodeAt(0)) % colors.length;
   return colors[h];
@@ -153,7 +159,8 @@ function enterGame({ phase, phaseEndAt, players }) {
   showView('game');
   updateTopbarPhase(phase);
   updatePhasePanel(phase);
-  renderPlayerGrid();
+  setPhase3View(phase === 3);
+  if (phase === 3) renderBoardP3(); else renderPlayerGrid();
 
   if (phaseEndAt) timer.start(phaseEndAt);
   else timer.clear(phase === 4 ? '—' : '--:--');
@@ -242,6 +249,62 @@ function updatePhasePanel(phase) {
         <span class="phase-stat-value" style="color:var(--accent)">${done} / ${total} objectifs</span>
       </div>`;
   }
+}
+
+/* ── Tableau Phase 3 ──────────────────────────────────────── */
+function renderBoardP3() {
+  const players = [...state.players.values()];
+  const total = players.reduce((s, p) => s + (p.objectives?.length || 0), 0);
+  const done  = players.reduce((s, p) => s + (p.objectives?.filter(o => o.status === 'completed').length || 0), 0);
+
+  boardScore.textContent = `${done} / ${total}`;
+  boardFill.style.width  = total > 0 ? `${Math.round(done / total * 100)}%` : '0%';
+
+  boardColumns.innerHTML = players.map(p => {
+    const t     = TEAMS[p.team];
+    const color = avatarColor(p.name);
+    const objs  = p.objectives || [];
+
+    const tiles = objs.map(o => {
+      const isDone   = o.status === 'completed';
+      const allRes   = Object.values(o.contributions || {}).every(v => v !== null);
+      const hasHelp  = Object.values(o.helpRequested || {}).some(Boolean);
+      const stCls    = isDone ? 'st-done' : allRes ? 'st-ready' : hasHelp ? 'st-help' : 'st-pending';
+      const stLabel  = isDone ? '✓ Construit' : allRes ? '▶ Prêt à construire' : hasHelp ? '🆘 Aide demandée' : '○ En attente';
+      const resIcons = (o.requiredResources || []).map(r => {
+        const got = (o.contributions || {})[r.teamId] != null;
+        return `<span class="board-res-dot ${got ? 'got' : ''}" title="${r.label}">${r.emoji}</span>`;
+      }).join('');
+      return `
+        <div class="board-obj-tile ${stCls}">
+          <span class="board-obj-icon">${o.emoji}</span>
+          <div class="board-obj-info">
+            <div class="board-obj-name">${o.name}</div>
+            <div class="board-obj-label">${stLabel}</div>
+            <div class="board-obj-res">${resIcons}</div>
+          </div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="board-col">
+        <div class="board-col-header">
+          <div class="board-col-avatar" style="background:${color}">${p.name.charAt(0).toUpperCase()}</div>
+          <div>
+            <div class="board-col-name">${p.name}</div>
+            ${t ? `<div class="board-col-team" style="color:${t.color}">${t.emoji} ${t.name} — ${t.resource}</div>` : '<div class="board-col-team">—</div>'}
+          </div>
+        </div>
+        ${tiles || '<p style="font-size:.75rem;color:var(--text-muted);padding:.25rem 0">Objectifs en attente…</p>'}
+      </div>`;
+  }).join('');
+}
+
+function setPhase3View(isP3) {
+  playerGrid.classList.toggle('hidden', isP3);
+  gridEmpty.classList.toggle('hidden', true);
+  boardP3.classList.toggle('hidden', !isP3);
+  playersColTitle.textContent = isP3 ? '🏕️ Progression du camp' : '👥 Joueurs';
 }
 
 /* ── Player grid rendering ────────────────────────────────── */
@@ -342,15 +405,19 @@ socket.on('admin:players-updated', ({ players }) => {
     updateLobbyPlayers(players);
   } else {
     state.players = new Map(players.map(p => [p.socketId, p]));
-    renderPlayerGrid();
+    if (state.phase === 3) renderBoardP3(); else renderPlayerGrid();
     updatePhasePanel(state.phase);
   }
 });
 
 socket.on('admin:player-state', ({ player }) => {
   state.players.set(player.socketId, player);
-  const card = playerGrid.querySelector(`[data-sid="${player.socketId}"]`);
-  if (card) card.outerHTML = buildPlayerCard(player);
+  if (state.phase === 3) {
+    renderBoardP3();
+  } else {
+    const card = playerGrid.querySelector(`[data-sid="${player.socketId}"]`);
+    if (card) card.outerHTML = buildPlayerCard(player);
+  }
   updatePhasePanel(state.phase);
 });
 

@@ -18,7 +18,7 @@ module.exports = [
     tagline: 'Les yeux de l\'île',
     resource: { id: 'plans', label: 'Plans', emoji: '📐' },
     advantage:    'Trouvent des raccourcis et ressources cachées',
-    disadvantage: 'Peu efficaces si restent au camp',
+    disadvantage: 'Peu efficaces s\'ils restent au camp',
   },
   {
     id: 'chasseurs',
@@ -39,15 +39,5 @@ module.exports = [
     resource: { id: 'eau', label: 'Eau', emoji: '💧' },
     advantage:    'Soignent et maintiennent le moral à 100 %',
     disadvantage: 'Ne peuvent pas travailler seuls',
-  },
-  {
-    id: 'strateges',
-    name: 'Stratèges',
-    emoji: '♟️',
-    color: '#c77dff',
-    tagline: 'L\'intelligence du camp',
-    resource: { id: 'outils', label: 'Outils', emoji: '🔧' },
-    advantage:    'Optimisent chaque action collective',
-    disadvantage: 'Inutiles sans les autres équipes',
   },
 ];

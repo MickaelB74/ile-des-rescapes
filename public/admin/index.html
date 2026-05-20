@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin — L'Île des Rescapés</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Lora:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/shared/style.css" />
   <link rel="stylesheet" href="admin.css" />
 </head>
@@ -105,18 +108,33 @@
 
         </aside>
 
-        <!-- ── Colonne droite : grille joueurs ── -->
+        <!-- ── Colonne droite : grille joueurs / tableau P3 ── -->
         <main class="players-col">
           <div class="row between gap-sm" style="margin-bottom:var(--sp-md)">
-            <div class="card-title">👥 Joueurs</div>
+            <div class="card-title" id="players-col-title">👥 Joueurs</div>
             <span id="game-player-count" class="text-sm text-muted"></span>
           </div>
-          <div id="player-grid" class="player-grid">
-            <!-- Player cards rendered by JS -->
-          </div>
+
+          <!-- Grille joueurs (phases 1, 2, 4) -->
+          <div id="player-grid" class="player-grid"></div>
           <div id="grid-empty" class="text-center text-muted text-sm hidden" style="padding:2rem">
             Aucun joueur connecté.
           </div>
+
+          <!-- Tableau de progression (phase 3) -->
+          <div id="board-p3" class="board-p3 hidden">
+            <div class="board-header">
+              <div class="board-header-left">
+                <span class="board-title">🏕️ Construction du Camp</span>
+                <span id="board-score" class="board-score"></span>
+              </div>
+              <div class="board-progress-wrap">
+                <div id="board-fill" class="board-progress-fill"></div>
+              </div>
+            </div>
+            <div id="board-columns" class="board-columns"></div>
+          </div>
+
         </main>
 
       </div>

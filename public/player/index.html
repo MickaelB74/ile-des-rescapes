@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>L'Île des Rescapés</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Lora:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/shared/style.css" />
   <link rel="stylesheet" href="player.css" />
 </head>
@@ -80,37 +83,35 @@
     <!-- ═══════════════════════ PHASE 2 ════════════════════
          Réorganisation                                     -->
     <div id="view-phase2" class="player-view hidden">
-      <div class="player-content">
-        <div class="phase-header mat-card-inner">
-          <div class="row between gap-sm">
-            <div>
-              <p class="text-xs text-muted">Phase 2 / 4</p>
-              <p class="fw-bold">Réorganisation des équipes</p>
-            </div>
-            <div id="p2-your-team" class="hidden"></div>
+      <div class="phase-header mat-card-inner" style="margin:var(--sp-lg) var(--sp-lg) 0">
+        <div class="row between gap-sm">
+          <div>
+            <p class="text-xs text-muted">Phase 2 / 4</p>
+            <p class="fw-bold">Réorganisation des équipes</p>
           </div>
-          <div class="alert alert-info mt-sm" style="font-size:.82rem">
-            💬 Parlez entre vous ! Chaque joueur doit choisir une équipe différente.
-          </div>
+          <div id="p2-your-team" class="hidden"></div>
         </div>
-        <div id="team-grid-2" class="team-grid mt-md"></div>
+        <p class="text-sm text-muted mt-sm">💬 Parlez entre vous ! Chaque joueur doit choisir une équipe différente.</p>
       </div>
+      <div id="team-grid-2" class="team-grid"></div>
     </div>
 
     <!-- ═══════════════════════ PHASE 3 ════════════════════
          Construction                                       -->
     <div id="view-phase3" class="player-view player-view-p3 hidden">
 
-      <!-- En-tête compact -->
+      <!-- En-tête — même style que phases 1 & 2 -->
       <div class="p3-header">
-        <span class="text-xs text-muted">Phase 3 / 4</span>
-        <span class="fw-bold"> — Construction du camp</span>
+        <div class="row between gap-sm">
+          <div>
+            <p class="text-xs text-muted">Phase 3 / 4</p>
+            <p class="fw-bold">Construction du camp</p>
+          </div>
+        </div>
       </div>
 
-      <!-- Corps deux colonnes -->
+      <!-- Corps : colonne unique (camp global déplacé côté admin) -->
       <div class="p3-body">
-
-        <!-- Gauche : aide + objectifs -->
         <div class="p3-left">
           <div id="help-panel" class="p3-help-bar hidden">
             <div class="p3-help-bar-title">🆘 Aide demandée</div>
@@ -120,13 +121,6 @@
             <div id="objectives-grid" class="obj-grid"></div>
           </div>
         </div>
-
-        <!-- Droite : avancée globale (étroite) -->
-        <div class="p3-right">
-          <p class="p3-right-title">🏕️ Camp global</p>
-          <div id="global-camp-list" class="global-camp-list"></div>
-        </div>
-
       </div>
 
     </div>

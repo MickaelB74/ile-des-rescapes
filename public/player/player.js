@@ -6,32 +6,46 @@ const timer  = new GameTimer(
 );
 
 const TEAMS = [
-  { id: 'batisseurs',   name: 'Bâtisseurs',    emoji: '🏗️', color: '#ff6b35',
-    tagline: 'La force du village',
-    resource: { id: 'bois',        label: 'Bois',        emoji: '🪵' },
+  { id: 'batisseurs',   name: 'Les Bâtisseurs',   emoji: '🏗️', color: '#c8732a',
+    image: '/img/batisseurs.png',
+    tagline: 'Avec nos mains et notre ingéniosité, nous construirons plus qu\'un abri : nous construirons un avenir.',
+    resource: { id: 'bois',       label: 'Bois',       emoji: '🪵' },
     advantage: 'Construisent 2× plus vite',
     disadvantage: 'Consomment 2× plus de nourriture' },
-  { id: 'explorateurs', name: 'Explorateurs',  emoji: '🗺️', color: '#00b4d8',
-    tagline: 'Les yeux de l\'île',
-    resource: { id: 'plans',       label: 'Plans',       emoji: '📐' },
-    advantage: 'Trouvent ressources et raccourcis cachés',
+  { id: 'explorateurs', name: 'Les Explorateurs', emoji: '🗺️', color: '#3a7a9a',
+    image: '/img/explorateurs.png',
+    tagline: 'Observer, comprendre, mesurer : c\'est ainsi que nous trouvons notre chemin et traçons notre avenir.',
+    resource: { id: 'plans',      label: 'Plans',      emoji: '📐' },
+    advantage: 'Trouvent des raccourcis et ressources cachées',
     disadvantage: 'Peu efficaces s\'ils restent au camp' },
-  { id: 'chasseurs',    name: 'Chasseurs',     emoji: '🏹', color: '#06d6a0',
-    tagline: 'Nourrir la tribu',
-    resource: { id: 'nourriture',  label: 'Nourriture',  emoji: '🍖' },
+  { id: 'chasseurs',    name: 'Les Chasseurs',    emoji: '🏹', color: '#4a7a3a',
+    image: '/img/chasseurs.png',
+    tagline: 'Traquer, récolter, survivre : nous assurons notre subsistance pour que le groupe puisse tenir.',
+    resource: { id: 'nourriture', label: 'Nourriture', emoji: '🍖' },
     advantage: 'Assurent la subsistance de tout le groupe',
     disadvantage: 'Mauvais en construction' },
-  { id: 'guerisseurs',  name: 'Guérisseurs',   emoji: '⚕️', color: '#ffd166',
-    tagline: 'La vie du camp',
-    resource: { id: 'eau',         label: 'Eau',         emoji: '💧' },
+  { id: 'guerisseurs',  name: 'Les Guérisseurs',  emoji: '⚕️', color: '#c8a82a',
+    image: '/img/guerisseurs.png',
+    tagline: 'Soigner, apaiser, protéger : nous cultivons la vie et veillons à l\'équilibre de notre communauté.',
+    resource: { id: 'eau',        label: 'Eau',        emoji: '💧' },
     advantage: 'Soignent et maintiennent le moral à 100 %',
     disadvantage: 'Ne peuvent pas travailler seuls' },
-  { id: 'strateges',    name: 'Stratèges',     emoji: '♟️', color: '#c77dff',
-    tagline: 'L\'intelligence du camp',
-    resource: { id: 'outils',      label: 'Outils',      emoji: '🔧' },
-    advantage: 'Optimisent chaque action collective',
-    disadvantage: 'Inutiles sans les autres équipes' },
 ];
+
+const OBJ_IMAGES = {
+  bat_cabane:     '/img/cabane_de_survie.png',
+  bat_pont:       '/img/pont_de_liane.png',
+  bat_tour:       '/img/tour_de_guet.png',
+  exp_carte:      '/img/carte_du_territoire.png',
+  exp_sentiers:   '/img/santiers_balisé.png',
+  exp_cache:      '/img/cache_de_ravitaillement.png',
+  cha_festin:     '/img/festin_du_camp.png',
+  cha_reserves:   '/img/reserves_hivernales.png',
+  cha_piege:      '/img/piege_a_gibier.png',
+  gue_source:     '/img/source_purifiée.png',
+  gue_infirmerie: '/img/infirmerie_de_camp.png',
+  gue_medecines:  '/img/provisions_medicinales.png',
+};
 
 /* ── Player state ─────────────────────────────────────────── */
 const me = { name: null, team: null, objectives: [] };
@@ -62,7 +76,6 @@ const teamGrid2       = document.getElementById('team-grid-2');
 const objectivesGrid  = document.getElementById('objectives-grid');
 const helpPanel       = document.getElementById('help-panel');
 const helpRequests_   = document.getElementById('help-requests');
-const globalCampList  = document.getElementById('global-camp-list');
 const overlayTimerEnd = document.getElementById('overlay-timer-end');
 const debriefName     = document.getElementById('debrief-name');
 const debriefTeam     = document.getElementById('debrief-team');
@@ -157,25 +170,44 @@ function renderTeamGrid(container, yourTeamEl, phase) {
   container.innerHTML = TEAMS.map(t => {
     const sel = me.team === t.id;
     return `
-      <div class="team-card ${sel ? 'selected' : ''}"
-           style="${sel ? `border-color:${t.color};box-shadow:0 0 0 2px ${t.color}33` : ''}"
-           onclick="selectTeam('${t.id}',${phase})">
-        <div class="team-card-emoji">${t.emoji}</div>
-        <div class="team-card-name" style="color:${t.color}">${t.name}</div>
-        <div class="team-card-tagline">${t.tagline}</div>
-        <div class="team-card-divider"></div>
-        <div class="res-provided">
-          <span class="res-provided-label">Ressource fournie</span>
-          <span class="res-chip res-have">${t.resource.emoji} ${t.resource.label}</span>
+      <div class="team-card-wrap ${sel ? 'selected' : ''}"
+           style="${sel ? `border-color:${t.color}` : ''}">
+        <!-- Zone flip : clic sur l'image retourne la carte -->
+        <div class="team-card-flip" onclick="flipTeamCard(this)">
+          <div class="team-card-inner">
+            <!-- Face avant : image -->
+            <div class="team-card-face team-card-front">
+              <img src="${t.image}" alt="${t.name}" loading="lazy" />
+              ${sel ? '<div class="team-card-chosen-overlay"><div class="team-card-chosen-badge">✓ Choisi</div></div>' : ''}
+            </div>
+            <!-- Face arrière : infos -->
+            <div class="team-card-face team-card-back">
+              <!-- Bandeau coloré : nom de l'équipe -->
+              <div class="team-back-header" style="background:${t.color}1a; border-bottom:2px solid ${t.color}44">
+                <div class="team-card-name" style="color:${t.color}">${t.emoji} ${t.name}</div>
+              </div>
+              <!-- Corps : citation/description -->
+              <div class="team-back-body">
+                <p class="team-card-tagline">${t.tagline}</p>
+              </div>
+              <!-- Pied : ressource + avantages/inconvénients -->
+              <div class="team-back-footer">
+                <div class="res-provided">
+                  <span class="res-provided-label">Ressource</span>
+                  <span class="res-chip res-have">${t.resource.emoji} ${t.resource.label}</span>
+                </div>
+                <ul class="team-card-pros"><li>${t.advantage}</li></ul>
+                <ul class="team-card-cons"><li>${t.disadvantage}</li></ul>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="team-card-divider"></div>
-        <ul class="team-card-pros"><li>${t.advantage}</li></ul>
-        <ul class="team-card-cons"><li>${t.disadvantage}</li></ul>
-        <div class="team-card-footer">
-          <button class="btn ${sel ? 'btn-success' : 'btn-secondary'}"
-            style="${sel ? `background:${t.color}` : ''}"
-            onclick="event.stopPropagation();selectTeam('${t.id}',${phase})">
-            ${sel ? '✓ Équipe choisie' : 'Choisir cette équipe'}
+        <p class="team-card-hint">↩ cliquer pour retourner</p>
+        <!-- Bouton toujours visible sous la carte -->
+        <div class="team-card-actions">
+          <button class="btn ${sel ? 'btn-success' : 'btn-primary'}" style="width:100%"
+            onclick="selectTeam('${t.id}',${phase})">
+            ${sel ? '✓ Équipe choisie' : 'Choisir'}
           </button>
         </div>
       </div>`;
@@ -189,6 +221,12 @@ function updateYourTeamChip(el) {
   el.innerHTML = `<div class="team-chip" style="background:${t.color}22;color:${t.color};border:1px solid ${t.color}44">${t.emoji} ${t.name} — ${t.resource.emoji} ${t.resource.label}</div>`;
   el.classList.remove('hidden');
 }
+
+window.flipTeamCard = (flipEl) => {
+  flipEl.classList.toggle('flipped');
+  const hint = flipEl.closest('.team-card-wrap')?.querySelector('.team-card-hint');
+  if (hint) hint.style.opacity = flipEl.classList.contains('flipped') ? '0' : '0.7';
+};
 
 function renderPhase1() { renderTeamGrid(teamGrid,  p1YourTeam, 1); showView('phase1'); }
 function renderPhase2() { renderTeamGrid(teamGrid2, p2YourTeam, 2); showView('phase2'); }
@@ -205,7 +243,6 @@ window.selectTeam = (teamId, phase) => {
 /* ── Phase 3 : construction ───────────────────────────────── */
 function renderPhase3() {
   renderObjectives();
-  renderGlobalCamp();
   showView('phase3');
 }
 
@@ -244,18 +281,25 @@ function renderObjectives() {
       actionBtn = `<button class="btn btn-secondary" disabled>⏳ En attente de ressources</button>`;
     }
 
+    const objImg = OBJ_IMAGES[obj.id] || '';
     return `
       <div class="obj-card ${done ? 'done' : ready ? 'ready' : ''}" data-obj="${obj.id}">
-        <div class="obj-card-top">
-          <span class="obj-emoji">${obj.emoji}</span>
-          <div class="obj-card-info">
-            <div class="obj-name">${obj.name}</div>
-            <div class="obj-desc">${obj.description}</div>
+        ${objImg ? `<div class="obj-card-art">
+          <img src="${objImg}" alt="${obj.name}" loading="lazy" />
+          ${done ? '<div class="obj-art-overlay"><span>✓ Construit</span></div>' : ''}
+        </div>` : ''}
+        <div class="obj-card-body">
+          <div class="obj-card-top">
+            <span class="obj-emoji">${obj.emoji}</span>
+            <div class="obj-card-info">
+              <div class="obj-name">${obj.name}</div>
+              <div class="obj-desc">${obj.description}</div>
+            </div>
           </div>
+          <div class="res-row">${resChips}</div>
+          ${done ? `<span class="chip chip-active" style="align-self:flex-start">✓ Complété</span>` : ''}
+          ${actionBtn}
         </div>
-        <div class="res-row">${resChips}</div>
-        ${done ? `<span class="chip chip-active" style="align-self:flex-start">✓ Complété</span>` : ''}
-        ${actionBtn}
       </div>`;
   }).join('');
 }
@@ -417,7 +461,6 @@ socket.on('game:players-update', ({ players }) => {
   }
   if (!views.phase3.classList.contains('hidden')) {
     renderObjectives();
-    renderGlobalCamp();
     renderHelpPanel();
   }
 });
